@@ -1,0 +1,1490 @@
+package br.com.mundodosfelinos.mundodosfelinos.ui.activities;
+
+import android.content.Intent;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+
+public class SplashActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
+        init();
+    }
+
+    public void init() {
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent i = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(i);
+                finish();
+
+            }
+        }, 2000);
+
+
+    }
+
+}
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.activities;
+
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class RegisterActivity extends AppCompatActivity {
+
+
+    @BindView(R.id.Name)
+    EditText name;
+
+    @BindView(R.id.lastName)
+    EditText lastName;
+
+    @BindView(R.id.user)
+    EditText user;
+
+    @BindView(R.id.password)
+    EditText password;
+
+    @BindView(R.id.confpassword)
+    EditText confpassword;
+
+    @BindView(R.id.register)
+    Button register;
+
+    FirebaseAuth fb_auth;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+
+        ButterKnife.bind(this);
+
+        fb_auth = FirebaseAuth.getInstance();
+
+
+
+    }
+
+    @OnClick(R.id.register)
+    public void register_click(){
+        fb_auth.createUserWithEmailAndPassword(user.getText().toString(),password.getText().toString())
+                .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            abrirLoginUsuario();
+                            new MaterialDialog.Builder(RegisterActivity.this)
+                                    .title("Registro")
+                                    .content("Registrado com Sucesso")
+                                    .show();
+                        }else{
+                            if(fb_auth.getCurrentUser() != null){
+                                Toast.makeText(RegisterActivity.this,"Deslogue o Usuario!!!!",Toast.LENGTH_LONG).show();
+
+                            }
+
+                        }
+
+                        fb_auth.signOut();
+
+
+                    }
+                });
+
+    }
+
+
+    //criada provisóriamente até criar a tela principal
+    public void abrirLoginUsuario(){
+        Intent intent = new Intent(RegisterActivity.this, PrincipalActivity.class);
+        startActivity(intent);
+
+    }
+}
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.activities;
+
+
+import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import br.com.mundodosfelinos.mundodosfelinos.ui.fragments.Fragment_busca_petsitter;
+import br.com.mundodosfelinos.mundodosfelinos.ui.fragments.Fragment_home;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class PrincipalActivity extends AppCompatActivity {
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_principal);
+        ButterKnife.bind(this);
+        setFragment(Fragment_home.getInstance(this));
+
+    }
+
+
+    public void setFragment(Fragment f){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.base,f);
+        ft.commit();
+    }
+
+
+
+}
+package br.com.mundodosfelinos.mundodosfelinos.ui.activities;
+
+
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class MainActivity extends AppCompatActivity {
+
+
+    @BindView(R.id.email)
+    EditText email;
+
+    @BindView(R.id.password)
+    EditText password;
+
+    @BindView(R.id.login)
+    Button login;
+
+    FirebaseAuth fb_auth;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
+
+        fb_auth = FirebaseAuth.getInstance();
+
+
+    }
+
+    @OnClick(R.id.login)
+    public void login_click(){
+        fb_auth.signInWithEmailAndPassword(email.getText().toString(),password.getText().toString())
+                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            abrirLoginUsuario();
+
+                        }else{
+                            new MaterialDialog.Builder(MainActivity.this)
+                                    .title("Erro de login")
+                                    .content("Verifique usuário e senha")
+                                    .show();
+
+                        }
+
+                        fb_auth.signOut();
+                    }
+
+
+                });
+
+    }
+
+    @OnClick(R.id.forgot)
+    public void forgotClick() {
+        Intent i = new Intent(MainActivity.this, ForgotActivity.class);
+        startActivity(i);
+    }
+
+    @OnClick(R.id.register)
+    public void registerClick(){
+        Intent i = new Intent(MainActivity.this, RegisterActivity.class);
+        startActivity(i);
+    }
+
+    public void abrirLoginUsuario(){
+        Intent intent = new Intent(MainActivity.this, PrincipalActivity.class);
+        startActivity(intent);
+
+    }
+
+
+}
+
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.activities;
+
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import br.com.mundodosfelinos.mundodosfelinos.model.ModelUser;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+
+public class ForgotActivity extends AppCompatActivity {
+
+    @BindView(R.id.user)
+    EditText user;
+
+    FirebaseAuth fb_auth;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_forgot);
+
+        ButterKnife.bind(this);
+
+        fb_auth = FirebaseAuth.getInstance();
+    }
+
+    @OnClick(R.id.forgot)
+    public void forgotClick() {
+
+        fb_auth.sendPasswordResetEmail(user.getText().toString())
+                .addOnCompleteListener(ForgotActivity.this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+
+                            new MaterialDialog.Builder(ForgotActivity.this)
+                                    .title("Reenvio")
+                                    .content("Nova senha reenviada!")
+                                    .show();
+                        } else {
+                            new MaterialDialog.Builder(ForgotActivity.this)
+                                    .title("Erro")
+                                    .content("Email não cadastrado")
+                                    .show();
+
+                        }
+                    }
+                });
+    }
+}
+
+
+
+
+
+
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.adapters;
+
+import android.content.Context;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
+
+import java.util.List;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import br.com.mundodosfelinos.mundodosfelinos.configuracao.ConfiguracaoFirebase;
+import br.com.mundodosfelinos.mundodosfelinos.model.ModelPetSitter;
+
+/**
+ * Created by 71701494 on 14/06/2018.
+ */
+
+public class AdapterPetSitter extends BaseAdapter {
+
+    private Context contexto;
+    private List<ModelPetSitter> listaPS;
+    //FirebaseStorage storage = FirebaseStorage.getInstance();
+    //StorageReference storageReference = storage.getReferenceFromUrl("gs:/mundo-dos-felinos.appspot.com/imagens/cat.jpg");
+
+
+    public AdapterPetSitter(Context contexto, List<ModelPetSitter> listaPS) {
+        this.contexto = contexto;
+        this.listaPS = listaPS;
+    }
+
+    @Override
+    public int getCount() {
+        return listaPS.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ModelPetSitter m = listaPS.get(position);
+        LayoutInflater inflater = (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.item_lista, null);
+
+
+      //  ImageView foto = view.findViewById(R.id.foto);
+       // Glide.with(contexto).load(m.getFoto()).into(foto);
+
+
+        TextView petsitter = view.findViewById(R.id.nome);
+        petsitter.setText(m.getNome());
+
+        TextView cidade = view.findViewById(R.id.cidade);
+        cidade.setText(m.getCidade());
+
+        TextView estado = view.findViewById(R.id.estado);
+        estado.setText(m.getEstado());
+
+        TextView telefone = view.findViewById(R.id.telefone);
+        telefone.setText(m.getTelefone());
+
+        TextView site = view.findViewById(R.id.site);
+        site.setText(m.getSite());
+
+
+        return view;
+
+
+    }
+
+}
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.fragments;
+
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class Fragment_busca_castracao extends Fragment {
+    @BindView(R.id.lv_castracap)
+    ListView lista;
+
+    public static  Fragment_busca_castracao getInstance() {
+        Fragment_busca_castracao fc = new Fragment_busca_castracao();
+        return fc;
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v =  inflater.inflate(R.layout.fragment_fragment_busca_castracao, container, false);
+        ButterKnife.bind(this,v);
+        return v;
+    }
+
+    @OnClick(R.id.btn_busca_castracao)
+    public void click_castracao(){
+
+    }
+
+}
+package br.com.mundodosfelinos.mundodosfelinos.ui.fragments;
+
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import com.algolia.instantsearch.helpers.Searcher;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import br.com.mundodosfelinos.mundodosfelinos.model.ModelPetSitter;
+import br.com.mundodosfelinos.mundodosfelinos.ui.adapters.AdapterPetSitter;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static android.support.constraint.Constraints.TAG;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class Fragment_busca_petsitter extends Fragment {
+
+    @BindView(R.id.lv_petsit)
+    ListView list;
+    @BindView(R.id.busca_petsitter)
+    EditText busca;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private FirebaseDatabase fbdb;
+    private DatabaseReference ref;
+
+    private List<ModelPetSitter> listPetSitter = new ArrayList<>();
+    private AdapterPetSitter adapter;
+
+    public static  Fragment_busca_petsitter getInstance() {
+        Fragment_busca_petsitter f = new Fragment_busca_petsitter();
+        return f;
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_fragment_busca_petsitter, container, false);
+
+        ButterKnife.bind(this, view);
+
+        fbdb = FirebaseDatabase.getInstance();
+        ref = fbdb.getReference().child("Categoria");
+        listar();
+
+        return view;
+    }
+
+    @OnClick(R.id.bt_busca_pet)
+    public void click_busca(){
+        String valor = busca.getText().toString();
+        pesquisar(valor);
+    }
+
+
+
+
+    public void pesquisar(String campo){
+
+        list.setAdapter(null);
+
+        db.collection("petsitter")
+                .whereEqualTo("nome", campo)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<ModelPetSitter> buscas = new ArrayList<>();
+                            for(DocumentSnapshot doc : task.getResult()){
+                                ModelPetSitter pet = doc.toObject(ModelPetSitter.class);
+                                buscas.add(pet);
+                            }
+
+                            AdapterPetSitter adapter = new AdapterPetSitter(getContext(),buscas);
+                            list.setAdapter(adapter);
+
+                            busca.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    list.setAdapter(null);
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                    list.setAdapter(null);
+
+                                }
+                            });
+
+
+                        }
+                    }
+                });
+
+
+    }
+
+
+    public void listar(){
+
+        db.collection("petsitter")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot documento : task.getResult()){
+                                ModelPetSitter pet = documento.toObject(ModelPetSitter.class);
+                                listPetSitter.add(pet);
+                            }
+                            AdapterPetSitter adapter = new AdapterPetSitter(getContext(),listPetSitter);
+                            list.setAdapter(adapter);
+
+                        }else{
+                                 Log.d("ERRO","ERRO AO RECUPERAR OBJETO");
+
+                        }
+                    }
+                });
+
+    }
+
+
+//
+
+}
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.fragments;
+
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+import br.com.mundodosfelinos.mundodosfelinos.ui.activities.PrincipalActivity;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class Fragment_home extends Fragment {
+
+
+    @BindView(R.id.petsitter)
+    TextView txt_pet;
+    @BindView(R.id.castracao)
+    TextView txt_cast;
+
+    PrincipalActivity tela;
+
+    public static Fragment_home getInstance(PrincipalActivity t) {
+        Fragment_home f = new Fragment_home();
+        f.tela = t;
+        return f;
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_fragment_home, container, false);
+        ButterKnife.bind(this,v);
+        return v;
+    }
+
+
+    @OnClick(R.id.btn_petsitter)
+     public void to_petsitter_fragment(){
+          tela.setFragment(Fragment_busca_petsitter.getInstance());
+     }
+
+    @OnClick(R.id.btn_castracao)
+    public void to_castracao_fragment(){
+        tela.setFragment(Fragment_busca_castracao.getInstance());
+    }
+
+}
+package br.com.mundodosfelinos.mundodosfelinos.model;
+
+public class ModelUser {
+
+    private String id;
+    private String name;
+    private String lastname;
+    private String user;
+    private String password;
+
+    public ModelUser() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
+
+
+package br.com.mundodosfelinos.mundodosfelinos.model;
+
+import android.widget.ImageView;
+
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
+@IgnoreExtraProperties
+public class ModelPetSitter {
+
+
+    private String nome;
+    private String cidade;
+    private String estado;
+    private String telefone;
+    private String site;
+
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getCidade() {
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getSite() {
+        return site;
+    }
+
+    public void setSite(String site) {
+        this.site = site;
+    }
+}
+package br.com.mundodosfelinos.mundodosfelinos.configuracao;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+public class ConfiguracaoFirebase {
+
+
+    private static DatabaseReference referenciaFirebase;
+    private static FirebaseAuth autenticacao;
+
+
+    public static DatabaseReference getFirebase() {
+        if (referenciaFirebase == null) {
+            referenciaFirebase = FirebaseDatabase.getInstance().getReference();
+        }
+
+        return referenciaFirebase;
+    }
+
+    public static FirebaseAuth getFirebaseAuth() {
+        if (autenticacao == null) {
+            autenticacao = FirebaseAuth.getInstance();
+        }
+
+        return autenticacao;
+    }
+}
+package br.com.mundodosfelinos.mundodosfelinos.app;
+
+import android.app.Application;
+
+
+public class MundodosFelinosApplication extends Application {
+
+}
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/fundo"
+    tools:context=".ui.activities.ForgotActivity">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:id="@+id/user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:hint="Digite seu e-mail"
+        android:inputType="textEmailAddress" />
+
+    <Button
+        android:id="@+id/forgot"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login"/>
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/fundo"
+    tools:context=".ui.activities.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"/>
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:hint="Digite seu e-mail"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/password"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:textColor="@color/black"/>
+
+    <EditText
+        android:inputType="textPassword"
+        android:id="@+id/password"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"/>
+
+    <Button
+        android:id="@+id/login"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login"/>
+
+    <Button
+        android:id="@+id/forgot"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/forgot"/>
+
+    <Button
+        android:id="@+id/register"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/register"/>
+
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/fundo"
+    tools:context=".ui.activities.PrincipalActivity">
+
+
+    <FrameLayout
+        android:id="@+id/base"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/fundo"
+    tools:context=".ui.activities.RegisterActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/name"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/Name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="@string/lastName"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/lastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="@string/user"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/user"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="@string/password"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:inputType="textVisiblePassword"
+                android:singleLine="true"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="@string/confirmpassword"
+                android:textColor="@color/black" />
+
+            <EditText
+                android:id="@+id/confpassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:inputType="textVisiblePassword"
+                android:singleLine="true"
+                android:textColor="@color/black" />
+
+            <Button
+                android:id="@+id/register"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="@string/register" />
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.activities.SplashActivity"
+    android:background="@drawable/splash">
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.fragments.Fragment_busca_petsitter">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/txt_castracao"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btn_busca_castracao"
+            android:text="Buscar"
+            android:layout_marginLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView6" android:fillViewport="true">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            ....
+            <ListView
+                android:id="@+id/lv_castracap"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="top"
+                android:layout_marginTop="5dp"/>
+            ....
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:algolia="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".ui.fragments.Fragment_busca_petsitter">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/busca_petsitter"
+            android:layout_width="290dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/bt_busca_pet"
+            android:layout_width="100dp"
+            android:background="@drawable/busca"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lv_petsit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:layout_marginTop="5dp"/>
+    ...
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/fundo"
+    tools:context=".ui.activities.PrincipalActivity">
+
+
+
+    <TextView
+        android:id="@+id/castracao"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:text="Castração"
+        android:textColor="@color/colorAccent"
+        android:textSize="60dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_castracao"
+        android:layout_width="100dp"
+        android:layout_height="127dp"
+        android:layout_marginLeft="140dp"
+        android:clickable="true"
+        app:srcCompat="@drawable/pat" />
+
+    <TextView
+        android:id="@+id/petsitter"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:text="Pet Sitter"
+        android:textColor="@color/colorAccent"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textSize="60dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_petsitter"
+        android:layout_width="100dp"
+        android:layout_height="127dp"
+        android:layout_marginLeft="140dp"
+        android:clickable="true"
+        app:srcCompat="@drawable/pata" />
+
+
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView6" android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/nome"
+                android:text="nome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/cidade"
+                android:text="cidade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/estado"
+                android:text="estado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/telefone"
+                android:text="telefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/site"
+                android:text="site"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"/>
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
+
+
+package br.com.mundodosfelinos.mundodosfelinos.ui.fragments;
+
+
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import br.com.mundodosfelinos.mundodosfelinos.R;
+
+import br.com.mundodosfelinos.mundodosfelinos.model.ModelPetsitter;
+import br.com.mundodosfelinos.mundodosfelinos.ui.adapters.AdapterPetSitter;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+
+
+public class Fragment_busca_petsitter extends Fragment {
+
+    @BindView(R.id.lv_petsit)
+    ListView list;
+    @BindView(R.id.busca_petsitter)
+    EditText busca;
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private FirebaseDatabase fbdb;
+    private DatabaseReference ref;
+
+    private List<ModelPetsitter> listPetSitter = new ArrayList<>();
+    private AdapterPetSitter adapter;
+
+    public static  Fragment_busca_petsitter getInstance() {
+        Fragment_busca_petsitter f = new Fragment_busca_petsitter();
+        return f;
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_fragment_busca_petsitter, container, false);
+
+        ButterKnife.bind(this, view);
+
+        fbdb = FirebaseDatabase.getInstance();
+        ref = fbdb.getReference()
+      .child("petsitter");  listar();
+
+        return view;
+    }
+
+    @OnClick(R.id.bt_busca_pet)
+    public void click_busca(){
+        String valor = busca.getText().toString();
+        pesquisar(valor);
+    }
+
+
+
+
+    public void pesquisar(String campo){
+
+        list.setAdapter(null);
+
+        db.collection("petsitter")
+                .whereEqualTo("cidade", campo)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<ModelPetsitter> buscas = new ArrayList<>();
+                            for(DocumentSnapshot doc : task.getResult()){
+                                ModelPetsitter pet = doc.toObject(ModelPetsitter.class);
+                                buscas.add(pet);
+                            }
+
+                            AdapterPetSitter adapter = new AdapterPetSitter(getContext(),buscas);
+                            list.setAdapter(adapter);
+
+                            busca.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    list.setAdapter(null);
+                                }
+
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                    list.setAdapter(null);
+
+                                }
+                            });
+
+
+                        }
+                    }
+                });
+
+
+    }
+
+
+    public void listar(){
+
+        db.collection("petsitter")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot documento : task.getResult()){
+                                ModelPetsitter pet = documento.toObject(ModelPetsitter.class);
+                                listPetSitter.add(pet);
+                            }
+                            AdapterPetSitter adapter = new AdapterPetSitter(getContext(),listPetSitter);
+                            list.setAdapter(adapter);
+
+
+                        }else{
+                            Log.d("ERRO","ERRO AO RECUPERAR OBJETO");
+
+                        }
+                    }
+                });
+
+    }
+
+
+//
+
+}
+
+
